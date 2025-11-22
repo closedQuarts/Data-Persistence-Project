@@ -11,10 +11,12 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text BestScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
+
     
     private bool m_GameOver = false;
 
@@ -22,6 +24,7 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -36,6 +39,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        UpdateBestScoreUI();
+
     }
 
     private void Update()
@@ -72,5 +77,30 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        if (DataHolder.Instance != null)
+        {
+            DataHolder.Instance.SetPoint(m_Points);
+            UpdateBestScoreUI(); // hemen UI'ı yenile
+        }
+        else
+        {
+            Debug.LogWarning("DataHolder instance not found; best score not updated.");
+        }
+    }
+    private void UpdateBestScoreUI()
+    {
+        if ( BestScoreText == null ) return;
+
+        if (DataHolder.Instance != null)
+        {
+            var name = DataHolder.Instance.GetBestPlayer();
+            var score = DataHolder.Instance.GetBestScore();
+            BestScoreText.text = $"Best Score : {name} : {score}";
+        }
+        else
+        {
+            BestScoreText.text = "Best Score : N/A";
+        }
     }
 }
